@@ -5,6 +5,7 @@ from trame.widgets import html, paraview, vuetify
 
 from .core.common.utils import throttled_run
 from .core.exodusViewer.time_step import TimeStepController
+import ptc
 
 try:
     from paraview import simple
@@ -175,8 +176,15 @@ class ExodusViewer:
                 renderView = paraview.VtkRemoteView(
                     self.update_render_window(), interactive_ratio=1, ref="exodus_view"
                 )
+
+                with renderView:
+                    ptc.PalettePickerVue2()
+                    ptc.ResetCameraButtonsVue2(rounded="xl")
+
                 self.ctrl.update_exodus_view = renderView.update
                 self.ctrl.reset_exodus_view_camera = renderView.reset_camera
+                self.ctrl.view_reset_camera = renderView.reset_camera
+                self.ctrl.on_data_change.add(self.ctrl.update_exodus_view)
 
                 # ex2 timestep controller
                 with html.Div(
